@@ -33,7 +33,10 @@ data class FlightResult(
     val toTime: String,
     val toDate: String,
     val airline: String,
-    val price: String
+    val price: String,
+    val layoverArrivalTime: String = "",
+    val layoverDepartureTime: String = "",
+    val provider: String = "Trip.com"
 )
 
 @Composable
@@ -44,116 +47,94 @@ fun ResultsPage(
     val flights = listOf(
         FlightResult(
             fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
+            leg1Duration = "1 hour 30 minutes",
             layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "7:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£400"
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
         FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
+            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+            leg1Duration = "1 hour 30 minutes",
+            layoverCode = "LHR", layoverDuration = "2 hours",
+            leg2Duration = "7 hours 50 minutes",
+            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+            airline = "British Airways", price = "£400",
+            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
         ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "10:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour",
-            layoverCode = "LHR", layoverDuration = "4 hours",
-            leg2Duration = "5 hour",
-            toCode = "JFK", toTime = "9:00", toDate = "1/10/26",
-            airline = "British Airways", price = "£350"
-        )
     )
 
     Column(
