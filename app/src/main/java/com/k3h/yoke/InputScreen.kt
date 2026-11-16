@@ -60,7 +60,7 @@ fun InputScreen(
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(text = "YOKE", style = MaterialTheme.typography.displayLarge, maxLines = 1)
 
