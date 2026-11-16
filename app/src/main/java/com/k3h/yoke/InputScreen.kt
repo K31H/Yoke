@@ -42,7 +42,7 @@ fun InputScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(Color(0xFF000000))
+                .background(MaterialTheme.colorScheme.onBackground)
         )
 
         BoxWithConstraints(
@@ -59,23 +59,24 @@ fun InputScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 10.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(
-                    text = "YOKE",
-                    fontSize = 100.sp,
-                    maxLines = 1
-                )
+                Spacer(Modifier.height(8.dp))
+
+                Text(text = "YOKE", style = MaterialTheme.typography.displayLarge, maxLines = 1)
+
+                Spacer(Modifier.height(24.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(0.9f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     LabeledInput("Departure airport", departure, onValueChange = onDepartureChange)
                     LabeledInput("Destination airport", destination, onValueChange = onDestinationChange)
                     LabeledInput("Departure date", departureDate, onValueChange = onDepartureDateChange)
                     LabeledInput("Return date", returnDate, onValueChange = onReturnDateChange)
                 }
+
+                Spacer(Modifier.height(24.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Button(

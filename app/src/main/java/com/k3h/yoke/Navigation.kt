@@ -35,22 +35,15 @@ fun BottomNavBar(current: NavTab, onSelect: (NavTab) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp)
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.outline)
         )
-        NavigationBar(containerColor = Color.White) {
-            NavTab.values().forEach { tab ->
+        NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+            NavTab.entries.forEach { tab ->
                 NavigationBarItem(
                     selected = tab == current,
                     onClick = { onSelect(tab) },
                     icon = { Icon(imageVector = tab.icon, contentDescription = tab.label) },
-                    label = { Text(tab.label) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.White,
-                        selectedTextColor = Color.Black,
-                        indicatorColor = Color.Black,
-                        unselectedIconColor = Color.Black,
-                        unselectedTextColor = Color.Black
-                    )
+                    label = { Text(tab.label) }
                 )
             }
         }
@@ -68,7 +61,7 @@ fun PageHeader(title: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.outline)
         )
         Text(
             text = title,

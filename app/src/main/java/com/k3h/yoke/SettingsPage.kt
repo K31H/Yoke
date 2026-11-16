@@ -3,16 +3,15 @@ package com.k3h.yoke
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.k3h.yoke.ui.theme.YokeStyle
 
 @Composable
 fun SettingsPage(
@@ -66,13 +65,13 @@ fun SettingsPage(
             // Clear saved searches
             OutlinedButton(
                 onClick = onClearSaved,
-                shape = RoundedCornerShape(6.dp),
-                border = BorderStroke(2.dp, Color.Black),
+                shape = YokeStyle.buttonShape,
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text("Clear saved searches", color = Color.Black)
+                Text("Clear saved searches", color = MaterialTheme.colorScheme.outline)
             }
         }
     }

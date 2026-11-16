@@ -7,19 +7,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.k3h.yoke.ui.theme.YokeStyle
 
 data class FlightResult(
     val fromCode: String,
@@ -44,104 +43,21 @@ fun ResultsPage(
     onBack: () -> Unit,
     onSelectFlight: (FlightResult) -> Unit = {}
 ) {
-    val flights = listOf(
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
-        FlightResult(
-            fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-            leg1Duration = "1 hour 30 minutes",
-            layoverCode = "LHR", layoverDuration = "2 hours",
-            leg2Duration = "7 hours 50 minutes",
-            toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-            airline = "British Airways", price = "£400",
-            layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-        ),
+    val sample = FlightResult(
+        fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
+        leg1Duration = "1 hour 30 minutes",
+        layoverCode = "LHR", layoverDuration = "2 hours",
+        leg2Duration = "7 hours 50 minutes",
+        toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
+        airline = "British Airways", price = "£400",
+        layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
     )
+    val flights = List(10) { sample }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
-            .imePadding(),
+            .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Status bar spacer
@@ -149,7 +65,7 @@ fun ResultsPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(Color(0xFF000000))
+                .background(MaterialTheme.colorScheme.onBackground)
         )
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -170,7 +86,7 @@ fun ResultsPage(
             }
             Text(
                 text = "YOKE",
-                fontSize = 100.sp,
+                style = MaterialTheme.typography.displayLarge,
                 maxLines = 1,
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -207,7 +123,9 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
+            .border(YokeStyle.borderWidth,
+                MaterialTheme.colorScheme.outline,
+                YokeStyle.cardShape)
             .padding(12.dp)
     ) {
         Column {
@@ -256,15 +174,17 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
                 // Select Button
                 Button(
                     onClick = onSelect, // Leads to the next page
-                    shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    border = BorderStroke(2.dp, Color.Black),
+                    shape = YokeStyle.buttonShape,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(
+                        YokeStyle.borderWidth,
+                        MaterialTheme.colorScheme.outline),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     modifier = Modifier.height(40.dp),
                 ) {
                     Text(
                         text = "Select ->",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.outline,
                         fontSize = 14.sp
                     )
                 }
@@ -286,7 +206,10 @@ fun AirportColumn(code: String, time: String, date: String?) {
         Box(
             modifier = Modifier
                 .size(60.dp)
-                .border(2.dp, Color.Black, RoundedCornerShape(6.dp)),
+                .border(
+                    YokeStyle.borderWidth,
+                    MaterialTheme.colorScheme.outline,
+                    YokeStyle.buttonShape),
             contentAlignment = Alignment.Center
         ) {
             Text(text = code, fontWeight = FontWeight.Bold, fontSize = 16.sp)

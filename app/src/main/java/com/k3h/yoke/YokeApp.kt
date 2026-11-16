@@ -8,11 +8,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.layout
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun YokeApp() {
     val context = LocalContext.current
+    val ime = WindowInsets.ime
 
     var currentTab by rememberSaveable { mutableStateOf(NavTab.Search) }
 
@@ -34,7 +36,11 @@ fun YokeApp() {
     BackHandler(enabled = showResults && selectedFlight == null) { showResults = false }
     BackHandler(enabled = currentTab != NavTab.Search) { currentTab = NavTab.Search }
 
-    Column(modifier = Modifier.fillMaxSize().imePadding()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -110,7 +116,19 @@ fun YokeApp() {
         }
 
         // Hide the navbar while the keyboard is open
-        if (!WindowInsets.isImeVisible) {
+        // The keyboard "covers" the navbar: it shrinks by however much the keyboard has risen,
+        // so the content area never jumps.
+        Box(
+            modifier = Modifier
+                .clipToBounds()
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    val visibleHeight = (placeable.height - ime.getBottom(this)).coerceAtLeast(0)
+                    layout(placeable.width, visibleHeight) {
+                        placeable.placeRelative(0, 0)
+                    }
+                }
+        ) {
             BottomNavBar(
                 current = currentTab,
                 onSelect = { currentTab = it }

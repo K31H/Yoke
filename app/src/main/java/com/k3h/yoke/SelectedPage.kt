@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,7 +49,7 @@ fun SelectedPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(Color(0xFF000000))
+                .background(MaterialTheme.colorScheme.onBackground)
         )
 
         // Header
@@ -105,7 +104,7 @@ fun SelectedPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(2.dp)
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.outline)
             )
             Row(
                 modifier = Modifier
@@ -125,7 +124,7 @@ fun SelectedPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(2.dp)
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -157,7 +156,7 @@ fun SelectedPage(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
+                        .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                         .padding(vertical = 16.dp, horizontal = 12.dp)
                 ) {
                     Column(
@@ -172,7 +171,7 @@ fun SelectedPage(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .size(28.dp)
-                            .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
                             .clickable { expanded = true },
                         contentAlignment = Alignment.Center
                     ) {
@@ -201,14 +200,14 @@ fun SelectedPage(
             Button(
                 onClick = onBook,
                 shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                border = BorderStroke(2.dp, Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(0.6f)
                     .height(44.dp)
             ) {
-                Text(text = "BOOK", color = Color.Black, fontSize = 12.sp)
+                Text(text = "BOOK", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -265,6 +264,8 @@ private fun PlaceRow(name: String, time: String) {
 
 @Composable
 private fun LegArrow() {
+    val arrowColor = MaterialTheme.colorScheme.outline   // read here, outside Canvas
+
     Canvas(
         modifier = Modifier
             .width(20.dp)
@@ -273,7 +274,7 @@ private fun LegArrow() {
         val cx = size.width / 2
         val head = 8.dp.toPx()
         drawLine(
-            color = Color.Black,
+            color = arrowColor,
             start = Offset(cx, 0f),
             end = Offset(cx, size.height - head),
             strokeWidth = 2.dp.toPx()
@@ -284,6 +285,6 @@ private fun LegArrow() {
             lineTo(cx, size.height)
             close()
         }
-        drawPath(arrowHead, Color.Black)
+        drawPath(arrowHead, arrowColor)
     }
 }
