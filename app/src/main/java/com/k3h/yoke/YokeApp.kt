@@ -1,31 +1,59 @@
 package com.k3h.yoke
 
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import kotlinx.coroutines.launch
+
+/** The currency comes from the market the fares are sold in. */
+private fun marketFor(currency: String): String = when (currency) {
+    "USD" -> "US"
+    "EUR" -> "DE"
+    else -> "GB"
+}
 
 @Composable
 fun YokeApp() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val ime = WindowInsets.ime
+    val storage = remember { Storage(context) }
 
     var currentTab by rememberSaveable { mutableStateOf(NavTab.Search) }
+
+    // Settings (remembered between launches)
+    var notificationsOn by rememberSaveable { mutableStateOf(storage.notificationsOn) }
+    var currency by rememberSaveable { mutableStateOf(storage.currency) }
+    var homeAirport by rememberSaveable { mutableStateOf(storage.homeAirport) }
 
     // Search flow state
     var showResults by remember { mutableStateOf(false) }
     var selectedFlight by remember { mutableStateOf<FlightResult?>(null) }
-    var departure by rememberSaveable { mutableStateOf("") }
+    var departure by rememberSaveable { mutableStateOf(airportLabel(storage.homeAirport)) }
     var destination by rememberSaveable { mutableStateOf("") }
     var departureDate by rememberSaveable { mutableStateOf("") }
     var returnDate by rememberSaveable { mutableStateOf("") }
@@ -37,11 +65,13 @@ fun YokeApp() {
     var bookingOptions by remember { mutableStateOf<List<BookingOption>>(emptyList()) }
     var bookingLoading by remember { mutableStateOf(false) }
 
-    // Saved searches + settings
-    val savedSearches = remember { mutableStateListOf<SavedSearch>() }
-    var notificationsOn by rememberSaveable { mutableStateOf(true) }
-    var currency by rememberSaveable { mutableStateOf("GBP") }
-    var homeAirport by rememberSaveable { mutableStateOf("") }
+    // Saved searches: loaded on start, written to disk whenever the list changes
+    val savedSearches = remember {
+        mutableStateListOf<SavedSearch>().apply { addAll(storage.loadSavedSearches()) }
+    }
+    LaunchedEffect(savedSearches) {
+        snapshotFlow { savedSearches.toList() }.collect { storage.saveSavedSearches(it) }
+    }
 
     fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
@@ -62,12 +92,15 @@ fun YokeApp() {
                 flights = emptyList()
                 scope.launch {
                     try {
-                        flights = searchConnections(
-                            origin = departure.trim().uppercase(),
-                            destination = destination.trim().uppercase(),
-                            departDate = depart,
-                            returnDate = ret
-                        )
+                        val from = resolveAirportCode(departure)
+                            ?: throw ApiException(
+                                "Couldn't find an airport matching \"${departure.trim()}\". Try a city name or a 3-letter code."
+                            )
+                        val to = resolveAirportCode(destination)
+                            ?: throw ApiException(
+                                "Couldn't find an airport matching \"${destination.trim()}\". Try a city name or a 3-letter code."
+                            )
+                        flights = searchConnections(from, to, depart, ret, marketFor(currency))
                     } catch (e: Exception) {
                         searchError = e.message ?: "Something went wrong. Please try again."
                     } finally {
@@ -112,7 +145,8 @@ fun YokeApp() {
                             onBack = { selectedFlight = null },
                             onBook = { option ->
                                 runCatching {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(option.url)))
+                                    context.startActivity(Intent(Intent.ACTION_VIEW,
+                                        option.url.toUri()))
                                 }.onFailure { toast("Couldn't open the booking page") }
                             }
                         )
@@ -171,13 +205,25 @@ fun YokeApp() {
 
                 NavTab.Settings -> SettingsPage(
                     notificationsOn = notificationsOn,
-                    onNotificationsChange = { notificationsOn = it },
+                    onNotificationsChange = {
+                        notificationsOn = it
+                        storage.notificationsOn = it
+                    },
                     currency = currency,
-                    onCurrencyChange = { currency = it },
+                    onCurrencyChange = { newCurrency ->
+                        if (newCurrency != currency) {
+                            currency = newCurrency
+                            storage.currency = newCurrency
+                            // results shown so far are priced in the old currency
+                            showResults = false
+                            selectedFlight = null
+                        }
+                    },
                     homeAirport = homeAirport,
-                    onHomeAirportChange = {
-                        homeAirport = it
-                        departure = it
+                    onHomeAirportChange = { code ->
+                        homeAirport = code
+                        storage.homeAirport = code
+                        departure = airportLabel(code)
                     },
                     onClearSaved = { savedSearches.clear() }
                 )

@@ -33,13 +33,13 @@ private suspend fun post(path: String, body: JSONObject): JSONObject = withConte
         val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
             ?.bufferedReader()?.use { it.readText() }.orEmpty()
 
-        when {
-            code in 200..299 -> JSONObject(text)
-            code == 401 || code == 403 -> throw ApiException("The API key was rejected. Check IGNAV_API_KEY.")
-            code == 404 -> throw ApiException("Nothing found.")
+        when (code) {
+            in 200..299 -> JSONObject(text)
+            401, 403 -> throw ApiException("The API key was rejected. Check IGNAV_API_KEY.")
+            404 -> throw ApiException("Nothing found.")
             else -> throw ApiException("Search failed (HTTP $code). ${text.take(120)}")
         }
-    } catch (e: java.io.IOException) {
+    } catch (_: java.io.IOException) {
         throw ApiException("Couldn't reach the server. Check your internet connection.")
     } finally {
         conn.disconnect()
@@ -53,7 +53,8 @@ suspend fun searchConnections(
     origin: String,
     destination: String,
     departDate: String,          // YYYY-MM-DD
-    returnDate: String?          // YYYY-MM-DD or null
+    returnDate: String?,         // YYYY-MM-DD or null
+    market: String               // 2-letter country code; decides the currency (GB = £, US = $)
 ): List<FlightResult> {
     val roundTrip = returnDate != null
     val body = JSONObject()
@@ -61,7 +62,7 @@ suspend fun searchConnections(
         .put("destination", destination)
         .put("departure_date", departDate)
         .put("max_stops", 1)
-        .put("market", "GB")                       // prices in GBP
+        .put("market", market)                     // prices in GBP
     if (roundTrip) body.put("return_date", returnDate)
 
     val json = post(if (roundTrip) "/fares/round-trip" else "/fares/one-way", body)

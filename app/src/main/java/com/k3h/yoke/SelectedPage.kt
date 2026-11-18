@@ -33,7 +33,7 @@ fun SelectedPage(
     onBook: (BookingOption) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember(bookingOptions) { mutableStateOf(0) }
+    var selectedIndex by remember(bookingOptions) { mutableIntStateOf(0) }
     val selected = bookingOptions.getOrNull(selectedIndex)
 
     Column(
