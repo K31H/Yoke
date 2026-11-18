@@ -35,25 +35,18 @@ data class FlightResult(
     val price: String,
     val layoverArrivalTime: String = "",
     val layoverDepartureTime: String = "",
-    val provider: String = "Trip.com"
+    val provider: String = "",
+    val ignavId: String = ""
 )
 
 @Composable
 fun ResultsPage(
+    flights: List<FlightResult>,
+    loading: Boolean,
+    error: String?,
     onBack: () -> Unit,
     onSelectFlight: (FlightResult) -> Unit = {}
 ) {
-    val sample = FlightResult(
-        fromCode = "ABZ", fromTime = "8:00", fromDate = "1/10/26",
-        leg1Duration = "1 hour 30 minutes",
-        layoverCode = "LHR", layoverDuration = "2 hours",
-        leg2Duration = "7 hours 50 minutes",
-        toCode = "JFK", toTime = "23:20", toDate = "1/10/26",
-        airline = "British Airways", price = "£400",
-        layoverArrivalTime = "9:30", layoverDepartureTime = "11:30"
-    )
-    val flights = List(10) { sample }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,23 +87,47 @@ fun ResultsPage(
             )
         }
 
-        // Flight List
-        Column(
+        // Flight list / loading / error
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.TopCenter
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(flights) { flight ->
-                    FlightCard(
-                        flight = flight,
-                        onSelect = { onSelectFlight(flight) } // Trigger navigation
-                    )
+            when {
+                loading -> Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Searching flights…")
+                }
+
+                error != null -> Text(
+                    text = error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp)
+                )
+
+                flights.isEmpty() -> Text(
+                    text = "No connecting flights found for those dates.",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp)
+                )
+
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(flights) { flight ->
+                        FlightCard(
+                            flight = flight,
+                            onSelect = { onSelectFlight(flight) }
+                        )
+                    }
                 }
             }
         }
@@ -119,13 +136,14 @@ fun ResultsPage(
 
 @Composable
 fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
-    // Outer border container
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(YokeStyle.borderWidth,
+            .border(
+                YokeStyle.borderWidth,
                 MaterialTheme.colorScheme.outline,
-                YokeStyle.cardShape)
+                YokeStyle.cardShape
+            )
             .padding(12.dp)
     ) {
         Column {
@@ -150,13 +168,10 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Airline Info
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Image for the Airline Logo
                     Image(
-                        // TODO: Replace with your actual drawable resource
-                        // painter = painterResource(id = R.drawable.your_airline_logo),
-                        painter = painterResource(id = android.R.drawable.ic_menu_gallery), // Placeholder
+                        // TODO: replace with a real airline logo
+                        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
                         contentDescription = "${flight.airline} Logo",
                         modifier = Modifier.size(32.dp)
                     )
@@ -164,23 +179,19 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
                     Text(text = flight.airline, fontSize = 14.sp)
                 }
 
-                // Price
                 Text(
                     text = flight.price,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
                 )
 
-                // Select Button
                 Button(
-                    onClick = onSelect, // Leads to the next page
+                    onClick = onSelect,
                     shape = YokeStyle.buttonShape,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(
-                        YokeStyle.borderWidth,
-                        MaterialTheme.colorScheme.outline),
+                    border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    modifier = Modifier.height(40.dp),
+                    modifier = Modifier.height(40.dp)
                 ) {
                     Text(
                         text = "Select ->",
@@ -199,23 +210,22 @@ fun AirportColumn(code: String, time: String, date: String?) {
         if (date != null) {
             Text(text = date, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
         } else {
-            Spacer(modifier = Modifier.height(16.dp)) // Maintain height for layover
+            Spacer(modifier = Modifier.height(16.dp)) // keeps the layover column aligned
         }
 
-        // Airport Code Box
         Box(
             modifier = Modifier
                 .size(60.dp)
                 .border(
                     YokeStyle.borderWidth,
                     MaterialTheme.colorScheme.outline,
-                    YokeStyle.buttonShape),
+                    YokeStyle.buttonShape
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(text = code, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
 
-        // Time or Layover Duration
         Text(
             text = time,
             fontSize = 12.sp,

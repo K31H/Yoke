@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,23 +19,22 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.k3h.yoke.ui.theme.YokeStyle
 
-private fun cityName(code: String): String = when (code) {
-    "ABZ" -> "Aberdeen (ABZ)"
-    "LHR" -> "London Heathrow (LHR)"
-    "JFK" -> "New York (JFK)"
-    else -> code
-}
+private fun cityName(code: String): String =
+    AIRPORTS.find { it.code == code }?.label ?: code
 
 @Composable
 fun SelectedPage(
     flight: FlightResult,
+    bookingOptions: List<BookingOption>,
+    bookingLoading: Boolean,
     onBack: () -> Unit,
-    onBook: () -> Unit = {},
-    providers: List<String> = listOf(flight.provider)
+    onBook: (BookingOption) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedProvider by remember { mutableStateOf(flight.provider) }
+    var selectedIndex by remember(bookingOptions) { mutableStateOf(0) }
+    val selected = bookingOptions.getOrNull(selectedIndex)
 
     Column(
         modifier = Modifier
@@ -156,23 +154,41 @@ fun SelectedPage(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                        .border(
+                            YokeStyle.borderWidth,
+                            MaterialTheme.colorScheme.outline,
+                            YokeStyle.cardShape
+                        )
                         .padding(vertical = 16.dp, horizontal = 12.dp)
                 ) {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = selectedProvider, fontSize = 20.sp)
-                        Text(text = flight.price, fontSize = 20.sp)
+                        when {
+                            bookingLoading -> Text("Finding providers…", fontSize = 16.sp)
+                            selected == null -> {
+                                Text("No booking links found", fontSize = 16.sp)
+                                Text(text = flight.price, fontSize = 20.sp)
+                            }
+                            else -> {
+                                Text(text = selected.provider, fontSize = 20.sp)
+                                Text(text = selected.price.ifBlank { flight.price }, fontSize = 20.sp)
+                            }
+                        }
                     }
+
                     // Dropdown "V" button
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .size(28.dp)
-                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
-                            .clickable { expanded = true },
+                            .border(
+                                YokeStyle.borderWidth,
+                                MaterialTheme.colorScheme.outline,
+                                YokeStyle.smallShape
+                            )
+                            .clickable(enabled = bookingOptions.size > 1) { expanded = true },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "V", fontSize = 12.sp)
@@ -180,11 +196,11 @@ fun SelectedPage(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
-                            providers.forEach { provider ->
+                            bookingOptions.forEachIndexed { index, option ->
                                 DropdownMenuItem(
-                                    text = { Text(provider) },
+                                    text = { Text("${option.provider}  ${option.price}") },
                                     onClick = {
-                                        selectedProvider = provider
+                                        selectedIndex = index
                                         expanded = false
                                     }
                                 )
@@ -198,10 +214,11 @@ fun SelectedPage(
 
             // Book button
             Button(
-                onClick = onBook,
-                shape = RoundedCornerShape(6.dp),
+                onClick = { selected?.let(onBook) },
+                enabled = selected != null,
+                shape = YokeStyle.buttonShape,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+                border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth(0.6f)
@@ -224,9 +241,10 @@ private fun LegBlock(
     airline: String,
     duration: String
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(IntrinsicSize.Min)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
         LegArrow()
         Spacer(modifier = Modifier.width(16.dp))
@@ -257,14 +275,14 @@ private fun PlaceRow(name: String, time: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name, fontSize = 18.sp)
+        Text(text = name, fontSize = 18.sp, modifier = Modifier.weight(1f))
         Text(text = time, fontSize = 18.sp)
     }
 }
 
 @Composable
 private fun LegArrow() {
-    val arrowColor = MaterialTheme.colorScheme.outline   // read here, outside Canvas
+    val arrowColor = MaterialTheme.colorScheme.outline   // read outside the Canvas
 
     Canvas(
         modifier = Modifier

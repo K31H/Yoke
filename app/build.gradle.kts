@@ -1,3 +1,9 @@
+import java.util.Properties
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -33,6 +39,13 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    defaultConfig {
+        buildConfigField("String", "IGNAV_API_KEY", "\"${localProps.getProperty("IGNAV_API_KEY", "")}\"")
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 }
 
