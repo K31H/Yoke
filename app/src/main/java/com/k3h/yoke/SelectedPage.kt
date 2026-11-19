@@ -214,6 +214,7 @@ private fun SectionTitle(text: String) {
 }
 
 /** One direction: a single leg for nonstop flights, or leg + connection + leg. */
+/** One direction: a single leg for nonstop flights, or leg + connection + leg. */
 @Composable
 private fun JourneySection(trip: FlightResult) {
     LegBlock(
@@ -222,6 +223,7 @@ private fun JourneySection(trip: FlightResult) {
         toName = cityName(if (trip.isNonstop) trip.toCode else trip.layoverCode),
         toTime = if (trip.isNonstop) trip.toTime else trip.layoverArrivalTime,
         airline = trip.airline,
+        airlineCode = trip.airlineCode,
         duration = trip.leg1Duration
     )
 
@@ -263,6 +265,7 @@ private fun JourneySection(trip: FlightResult) {
             toName = cityName(trip.toCode),
             toTime = trip.toTime,
             airline = trip.airline,
+            airlineCode = trip.airlineCode,
             duration = trip.leg2Duration
         )
     }
@@ -275,6 +278,7 @@ private fun LegBlock(
     toName: String,
     toTime: String,
     airline: String,
+    airlineCode: String,
     duration: String
 ) {
     Row(
@@ -288,13 +292,19 @@ private fun LegBlock(
             PlaceRow(name = fromName, time = fromTime)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 22.dp)
+                modifier = Modifier.padding(vertical = 18.dp)
             ) {
+                AirlineLogo(
+                    code = airlineCode,
+                    name = airline,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = airline,
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.width(56.dp)
+                    fontSize = 12.sp,
+                    maxLines = 2,
+                    modifier = Modifier.weight(1f, fill = false)   // long names wrap instead of pushing the duration off
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = duration, fontSize = 12.sp)
@@ -303,7 +313,6 @@ private fun LegBlock(
         }
     }
 }
-
 @Composable
 private fun PlaceRow(name: String, time: String) {
     Row(

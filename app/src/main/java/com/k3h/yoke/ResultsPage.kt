@@ -32,6 +32,7 @@ data class FlightResult(
     val toTime: String,
     val toDate: String,
     val airline: String,
+    val airlineCode: String = "",
     val price: String,
     val layoverArrivalTime: String = "",
     val layoverDepartureTime: String = "",
@@ -214,12 +215,7 @@ private fun FlightFooter(flight: FlightResult, onSelect: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                // TODO: replace with a real airline logo
-                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                contentDescription = "${flight.airline} Logo",
-                modifier = Modifier.size(32.dp)
-            )
+            AirlineLogo(code = flight.airlineCode, name = flight.airline)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = flight.airline, fontSize = 14.sp)
         }

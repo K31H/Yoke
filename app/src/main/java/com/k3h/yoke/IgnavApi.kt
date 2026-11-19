@@ -127,6 +127,7 @@ private fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightRes
         toTime = timeOf(last.getString("arrival_time_local")),
         toDate = dateOf(last.getString("arrival_time_local")),
         airline = leg.optString("carrier").ifBlank { s1.optString("operating_carrier_name", "") },
+        airlineCode = s1.optString("marketing_carrier_code"),
         price = price,
         layoverArrivalTime = if (s2 != null) timeOf(s1.getString("arrival_time_local")) else "",
         layoverDepartureTime = if (s2 != null) timeOf(s2.getString("departure_time_local")) else "",
