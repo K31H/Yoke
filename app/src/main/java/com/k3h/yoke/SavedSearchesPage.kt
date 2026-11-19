@@ -85,7 +85,8 @@ private fun SavedSearchCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "${search.departureDate} – ${search.returnDate}",
+                text = if (search.returnDate.isBlank()) prettyDate(search.departureDate)
+                else "${prettyDate(search.departureDate)} – ${prettyDate(search.returnDate)}",
                 fontSize = 12.sp
             )
         }

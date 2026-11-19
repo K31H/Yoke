@@ -36,8 +36,11 @@ data class FlightResult(
     val layoverArrivalTime: String = "",
     val layoverDepartureTime: String = "",
     val provider: String = "",
-    val ignavId: String = ""
-)
+    val ignavId: String = "",
+    val inbound: FlightResult? = null      // the return flight on a round trip
+) {
+    val isNonstop: Boolean get() = layoverCode.isBlank()
+}
 
 @Composable
 fun ResultsPage(
@@ -147,66 +150,108 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
             .padding(12.dp)
     ) {
         Column {
-            // TOP SECTION: Flight Path
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                AirportColumn(code = flight.fromCode, time = flight.fromTime, date = flight.fromDate)
-                FlightLeg(duration = flight.leg1Duration)
-                AirportColumn(code = flight.layoverCode, time = flight.layoverDuration, date = null)
-                FlightLeg(duration = flight.leg2Duration)
-                AirportColumn(code = flight.toCode, time = flight.toTime, date = flight.toDate)
-            }
-
+            if (flight.isNonstop) NonstopPath(flight) else ConnectionPath(flight)
             Spacer(modifier = Modifier.height(24.dp))
-
-            // BOTTOM SECTION: Airline, Price, Button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        // TODO: replace with a real airline logo
-                        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                        contentDescription = "${flight.airline} Logo",
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = flight.airline, fontSize = 14.sp)
-                }
-
-                Text(
-                    text = flight.price,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Button(
-                    onClick = onSelect,
-                    shape = YokeStyle.buttonShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    modifier = Modifier.height(40.dp)
-                ) {
-                    Text(
-                        text = "Select ->",
-                        color = MaterialTheme.colorScheme.outline,
-                        fontSize = 14.sp
-                    )
-                }
-            }
+            FlightFooter(flight, onSelect)
         }
     }
 }
 
+/** Origin -> layover -> destination */
+@Composable
+private fun ConnectionPath(flight: FlightResult) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AirportColumn(code = flight.fromCode, time = flight.fromTime, date = flight.fromDate)
+        FlightLeg(duration = flight.leg1Duration, modifier = Modifier.weight(1f))
+        AirportColumn(code = flight.layoverCode, time = flight.layoverDuration, date = null)
+        FlightLeg(duration = flight.leg2Duration, modifier = Modifier.weight(1f))
+        AirportColumn(code = flight.toCode, time = flight.toTime, date = flight.toDate)
+    }
+}
+
+/** Origin -> destination, no connection */
+@Composable
+private fun NonstopPath(flight: FlightResult) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AirportColumn(code = flight.fromCode, time = flight.fromTime, date = flight.fromDate)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = flight.leg1Duration, fontSize = 10.sp, textAlign = TextAlign.Center)
+            Text(text = "➔", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "NONSTOP",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary, YokeStyle.smallShape)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
+        AirportColumn(code = flight.toCode, time = flight.toTime, date = flight.toDate)
+    }
+}
+
+/** Airline, price and Select button, shared by both card types */
+@Composable
+private fun FlightFooter(flight: FlightResult, onSelect: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                // TODO: replace with a real airline logo
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                contentDescription = "${flight.airline} Logo",
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = flight.airline, fontSize = 14.sp)
+        }
+
+        Text(
+            text = flight.price,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Button(
+            onClick = onSelect,
+            shape = YokeStyle.buttonShape,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.height(40.dp)
+        ) {
+            Text(
+                text = "Select ->",
+                color = MaterialTheme.colorScheme.outline,
+                fontSize = 14.sp
+            )
+        }
+    }
+}
 @Composable
 fun AirportColumn(code: String, time: String, date: String?) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.width(64.dp),            // fixed width so no box gets squeezed
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         if (date != null) {
             Text(text = date, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
         } else {
@@ -236,12 +281,17 @@ fun AirportColumn(code: String, time: String, date: String?) {
 }
 
 @Composable
-fun FlightLeg(duration: String) {
+fun FlightLeg(duration: String, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 4.dp)
+        modifier = modifier.padding(horizontal = 4.dp)
     ) {
-        Text(text = duration, fontSize = 10.sp, modifier = Modifier.padding(bottom = 2.dp))
+        Text(
+            text = duration,
+            fontSize = 10.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 2.dp)
+        )
         Text(
             text = "➔",
             fontSize = 24.sp,

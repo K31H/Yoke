@@ -89,8 +89,14 @@ fun InputScreen(
                 ) {
                     LabeledInput("Departure airport", departure, onValueChange = onDepartureChange)
                     LabeledInput("Destination airport", destination, onValueChange = onDestinationChange)
-                    LabeledInput("Departure date", departureDate, onValueChange = onDepartureDateChange)
-                    LabeledInput("Return date", returnDate, onValueChange = onReturnDateChange)
+                    DateField("Departure date", departureDate, onValueChange = onDepartureDateChange)
+                    DateField(
+                        label = "Return date (optional)",
+                        value = returnDate,
+                        onValueChange = onReturnDateChange,
+                        minDate = departureDate,
+                        optional = true
+                    )
                 }
 
                 Spacer(Modifier.height(24.dp))

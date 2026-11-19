@@ -82,9 +82,9 @@ fun YokeApp() {
             departure.isBlank() || destination.isBlank() ->
                 toast("Enter departure and destination first")
             depart == null ->
-                toast("Departure date should look like 2026-12-16 or 16/12/26")
+                toast("Choose a departure date")
             returnDate.isNotBlank() && ret == null ->
-                toast("Return date should look like 2026-12-23 or 23/12/26")
+                toast("Choose a valid return date")
             else -> {
                 showResults = true
                 searching = true
@@ -164,7 +164,10 @@ fun YokeApp() {
                             destination = destination,
                             onDestinationChange = { destination = it },
                             departureDate = departureDate,
-                            onDepartureDateChange = { departureDate = it },
+                            onDepartureDateChange = { newDate ->
+                                departureDate = newDate
+                                if (returnDate.isNotBlank() && (normaliseDate(returnDate) ?: "") < newDate) returnDate = ""
+                            },
                             returnDate = returnDate,
                             onReturnDateChange = { returnDate = it },
                             onSearch = { runSearch() },
