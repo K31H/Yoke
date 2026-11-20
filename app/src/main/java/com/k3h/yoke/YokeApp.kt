@@ -37,7 +37,7 @@ private fun marketFor(currency: String): String = when (currency) {
 }
 
 @Composable
-fun YokeApp() {
+fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val ime = WindowInsets.ime
@@ -46,7 +46,6 @@ fun YokeApp() {
     var currentTab by rememberSaveable { mutableStateOf(NavTab.Search) }
 
     // Settings (remembered between launches)
-    var notificationsOn by rememberSaveable { mutableStateOf(storage.notificationsOn) }
     var currency by rememberSaveable { mutableStateOf(storage.currency) }
     var homeAirport by rememberSaveable { mutableStateOf(storage.homeAirport) }
 
@@ -207,11 +206,8 @@ fun YokeApp() {
                 )
 
                 NavTab.Settings -> SettingsPage(
-                    notificationsOn = notificationsOn,
-                    onNotificationsChange = {
-                        notificationsOn = it
-                        storage.notificationsOn = it
-                    },
+                    darkMode = darkMode,
+                    onDarkModeChange = onDarkModeChange,
                     currency = currency,
                     onCurrencyChange = { newCurrency ->
                         if (newCurrency != currency) {

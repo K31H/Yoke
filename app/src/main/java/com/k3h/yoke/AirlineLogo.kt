@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.k3h.yoke.ui.theme.YokeStyle
@@ -24,6 +25,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.graphics.Color
 
 object AirlineLogos {
     private val cache = LruCache<String, ImageBitmap>(64)
@@ -65,7 +69,8 @@ object AirlineLogos {
 fun AirlineLogo(
     code: String,
     name: String,
-    modifier: Modifier = Modifier.size(32.dp)
+    modifier: Modifier = Modifier,
+    size: Dp = 32.dp
 ) {
     var logo by remember(code) { mutableStateOf(AirlineLogos.cached(code)) }
     LaunchedEffect(code) {
@@ -79,6 +84,9 @@ fun AirlineLogo(
             contentDescription = "$name logo",
             contentScale = ContentScale.Fit,
             modifier = modifier
+                .size(size)
+                .background(Color.White, YokeStyle.smallShape)
+                .padding(2.dp)
         )
     } else {
         Box(

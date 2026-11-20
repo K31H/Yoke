@@ -70,7 +70,7 @@ suspend fun fetchAirportSuggestions(query: String): List<AirportSuggestion> {
                     detail = listOf(name, o.optString("country")).filter { it.isNotBlank() }.joinToString(", ")
                 )
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         } finally {
             conn.disconnect()

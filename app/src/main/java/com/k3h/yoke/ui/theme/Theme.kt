@@ -4,6 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -13,51 +14,80 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// ---- Palette ----
-val YokeBlack = Color(0xFF000000)
+// ---- Light palette: white background, black text, blues for everything else ----
 val YokeWhite = Color(0xFFFFFFFF)
-val YokeGrey = Color(0xFFF2F2F2)
-val YokeMidGrey = Color(0xFFBDBDBD)
+val YokeInk = Color(0xFF000000)
+val YokeBlue = Color(0xFF1A5FCC)
+val YokeBlueDeep = Color(0xFF0B2F6B)
+val YokeBlueBright = Color(0xFF0277BD)
+val YokeBlueTint = Color(0xFFDCEBFB)
+val YokeBlueMist = Color(0xFFF1F6FD)
+val YokeBlueLine = Color(0xFFB3CCEE)
 
-private val YokeColorScheme = lightColorScheme(
-    primary = YokeBlack,
+private val YokeLightColorScheme = lightColorScheme(
+    primary = YokeBlue,
     onPrimary = YokeWhite,
-    secondary = YokeBlack,
+    primaryContainer = YokeBlueTint,
+    onPrimaryContainer = YokeInk,
+    secondary = YokeBlueDeep,
     onSecondary = YokeWhite,
-    // used for selected chips and the selected navbar item
-    secondaryContainer = YokeBlack,
+    secondaryContainer = YokeBlue,        // selected chips and the selected navbar item
     onSecondaryContainer = YokeWhite,
+    tertiary = YokeBlueBright,
+    onTertiary = YokeWhite,
     background = YokeWhite,
-    onBackground = YokeBlack,
+    onBackground = YokeInk,
     surface = YokeWhite,
-    onSurface = YokeBlack,
-    surfaceVariant = YokeGrey,
-    onSurfaceVariant = YokeBlack,
-    outline = YokeBlack,
-    outlineVariant = YokeMidGrey
+    onSurface = YokeInk,
+    surfaceVariant = YokeBlueMist,
+    onSurfaceVariant = YokeInk,
+    outline = YokeBlueDeep,
+    outlineVariant = YokeBlueLine
 )
 
-// ---- Typography ----
-// Swap FontFamily.Default for your own font later (res/font) and every screen follows.
-private val YokeTypography = Typography(
+// ---- Dark palette: near-black background, white text, lighter blues for contrast ----
+private val YokeDarkColorScheme = darkColorScheme(
+    primary = Color(0xFF6EA8FF),
+    onPrimary = Color(0xFF001A3D),
+    primaryContainer = Color(0xFF1E3A5F),
+    onPrimaryContainer = Color(0xFFFFFFFF),
+    secondary = Color(0xFF2F6FDB),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFF2F6FDB),
+    onSecondaryContainer = Color(0xFFFFFFFF),
+    tertiary = Color(0xFF0B6BAE),
+    onTertiary = Color(0xFFFFFFFF),
+    background = Color(0xFF0B0F14),
+    onBackground = Color(0xFFFFFFFF),
+    surface = Color(0xFF151B23),
+    onSurface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFF1B2430),
+    onSurfaceVariant = Color(0xFFFFFFFF),
+    outline = Color(0xFF7FAAE8),
+    outlineVariant = Color(0xFF2C3A4D)
+)
+
+// ---- Typography (the logo takes the current main colour) ----
+private fun yokeTypography(logoColor: Color) = Typography(
     displayLarge = TextStyle(            // "YOKE" logo
         fontFamily = FontFamily.Default,
-        fontSize = 100.sp
+        fontSize = 100.sp,
+        color = logoColor
     ),
     headlineLarge = TextStyle(           // page titles
         fontFamily = FontFamily.Default,
         fontSize = 40.sp
     ),
-    headlineSmall = TextStyle(           // section headings
+    headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold
     ),
-    titleLarge = TextStyle(              // airports, route names
+    titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 18.sp
     ),
-    titleMedium = TextStyle(             // setting labels
+    titleMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium
@@ -66,18 +96,18 @@ private val YokeTypography = Typography(
         fontFamily = FontFamily.Default,
         fontSize = 14.sp
     ),
-    bodySmall = TextStyle(               // dates, durations, captions
+    bodySmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 12.sp
     ),
-    labelLarge = TextStyle(              // input labels, buttons
+    labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 15.sp,
         fontWeight = FontWeight.Medium
     )
 )
 
-// ---- Shapes (affects text fields, chips, menus, etc.) ----
+// ---- Shapes ----
 private val YokeShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(4.dp),
@@ -86,7 +116,6 @@ private val YokeShapes = Shapes(
     extraLarge = RoundedCornerShape(8.dp)
 )
 
-// ---- Reusable style values for things Material doesn't theme for us ----
 object YokeStyle {
     val borderWidth = 2.dp
     val cardShape = RoundedCornerShape(8.dp)
@@ -95,10 +124,14 @@ object YokeStyle {
 }
 
 @Composable
-fun YokeTheme(content: @Composable () -> Unit) {
+fun YokeTheme(
+    darkTheme: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colors = if (darkTheme) YokeDarkColorScheme else YokeLightColorScheme
     MaterialTheme(
-        colorScheme = YokeColorScheme,
-        typography = YokeTypography,
+        colorScheme = colors,
+        typography = yokeTypography(colors.primary),
         shapes = YokeShapes,
         content = content
     )

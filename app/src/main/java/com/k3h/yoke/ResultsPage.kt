@@ -1,19 +1,36 @@
 package com.k3h.yoke
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,7 +79,7 @@ fun ResultsPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.scrim)
         )
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -143,6 +160,7 @@ fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, YokeStyle.cardShape)
             .border(
                 YokeStyle.borderWidth,
                 MaterialTheme.colorScheme.outline,
@@ -196,9 +214,9 @@ private fun NonstopPath(flight: FlightResult) {
                 text = "NONSTOP",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onTertiary,
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary, YokeStyle.smallShape)
+                    .background(MaterialTheme.colorScheme.tertiary, YokeStyle.smallShape)
                     .padding(horizontal = 8.dp, vertical = 2.dp)
             )
         }
@@ -223,22 +241,17 @@ private fun FlightFooter(flight: FlightResult, onSelect: () -> Unit) {
         Text(
             text = flight.price,
             fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Button(
             onClick = onSelect,
             shape = YokeStyle.buttonShape,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             modifier = Modifier.height(40.dp)
         ) {
-            Text(
-                text = "Select ->",
-                color = MaterialTheme.colorScheme.outline,
-                fontSize = 14.sp
-            )
+            Text(text = "Select ->", fontSize = 14.sp)
         }
     }
 }
@@ -257,6 +270,7 @@ fun AirportColumn(code: String, time: String, date: String?) {
         Box(
             modifier = Modifier
                 .size(60.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer, YokeStyle.buttonShape)
                 .border(
                     YokeStyle.borderWidth,
                     MaterialTheme.colorScheme.outline,

@@ -1,17 +1,44 @@
 package com.k3h.yoke
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -33,7 +60,7 @@ fun SelectedPage(
     onBook: (BookingOption) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedIndex by remember(bookingOptions) { mutableStateOf(0) }
+    var selectedIndex by remember(bookingOptions) { mutableIntStateOf(0) }
     val selected = bookingOptions.getOrNull(selectedIndex)
     val inbound = flight.inbound
 
@@ -48,7 +75,7 @@ fun SelectedPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.scrim)
         )
 
         // Header
@@ -101,7 +128,11 @@ fun SelectedPage(
         }
 
         // Pinned above the navbar: providers + book
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,13 +221,12 @@ fun SelectedPage(
                     onClick = { selected?.let(onBook) },
                     enabled = selected != null,
                     shape = YokeStyle.buttonShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(YokeStyle.borderWidth, MaterialTheme.colorScheme.outline),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier
                         .fillMaxWidth(0.6f)
                         .height(44.dp)
                 ) {
-                    Text(text = "BOOK", color = MaterialTheme.colorScheme.outline, fontSize = 12.sp)
+                    Text(text = "BOOK", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -207,6 +237,7 @@ fun SelectedPage(
 private fun SectionTitle(text: String) {
     Text(
         text = text,
+        color = MaterialTheme.colorScheme.primary,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -294,11 +325,7 @@ private fun LegBlock(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(vertical = 18.dp)
             ) {
-                AirlineLogo(
-                    code = airlineCode,
-                    name = airline,
-                    modifier = Modifier.size(28.dp)
-                )
+                AirlineLogo(code = airlineCode, name = airline, size = 28.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = airline,
@@ -327,7 +354,7 @@ private fun PlaceRow(name: String, time: String) {
 
 @Composable
 private fun LegArrow() {
-    val arrowColor = MaterialTheme.colorScheme.outline   // read outside the Canvas
+    val arrowColor = MaterialTheme.colorScheme.primary
 
     Canvas(
         modifier = Modifier

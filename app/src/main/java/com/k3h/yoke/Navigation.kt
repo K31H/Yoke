@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 enum class NavTab(val label: String, val icon: ImageVector) {
     Search("Search", Icons.Filled.Search),
@@ -45,7 +44,7 @@ fun BottomNavBar(current: NavTab, onSelect: (NavTab) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp)
-                .background(MaterialTheme.colorScheme.outline)
+                .background(MaterialTheme.colorScheme.primary)
         )
         NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
             NavTab.entries.forEach { tab ->
@@ -60,7 +59,7 @@ fun BottomNavBar(current: NavTab, onSelect: (NavTab) -> Unit) {
     }
 }
 
-/** Black status-bar strip + centred page title, shared by the Saved and Settings pages. */
+/** Status-bar strip + centred page title, shared by the Saved and Settings pages. */
 @Composable
 fun PageHeader(title: String) {
     Column(
@@ -71,11 +70,12 @@ fun PageHeader(title: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.colorScheme.outline)
+                .background(MaterialTheme.colorScheme.scrim)
         )
         Text(
             text = title,
-            fontSize = 40.sp,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             modifier = Modifier.padding(vertical = 32.dp)
         )

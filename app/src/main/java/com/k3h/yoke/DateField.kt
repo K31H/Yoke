@@ -44,7 +44,6 @@ fun prettyDate(value: String, weekday: Boolean = false): String {
  * Tap-to-pick date field. The value is stored as YYYY-MM-DD (or "" when empty).
  * minDate is the earliest selectable day (YYYY-MM-DD); anything earlier than today is always blocked.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(
     label: String,

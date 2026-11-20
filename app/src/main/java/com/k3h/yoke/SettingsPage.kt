@@ -23,8 +23,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SettingsPage(
-    notificationsOn: Boolean,
-    onNotificationsChange: (Boolean) -> Unit,
+    darkMode: Boolean,
+    onDarkModeChange: (Boolean) -> Unit,
     currency: String,
     onCurrencyChange: (String) -> Unit,
     homeAirport: String,
@@ -93,16 +93,16 @@ fun SettingsPage(
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp)
         ) {
-            // Notifications
+            // Dark mode
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Price drop alerts", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    Text("Get notified when a saved search gets cheaper", fontSize = 12.sp)
+                    Text("Dark mode", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text("Use a dark colour scheme", fontSize = 12.sp)
                 }
-                Switch(checked = notificationsOn, onCheckedChange = onNotificationsChange)
+                Switch(checked = darkMode, onCheckedChange = onDarkModeChange)
             }
 
             // Currency

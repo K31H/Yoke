@@ -15,27 +15,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun InputScreen(
@@ -59,7 +49,7 @@ fun InputScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.scrim)
         )
 
         BoxWithConstraints(
@@ -87,8 +77,8 @@ fun InputScreen(
                     modifier = Modifier.fillMaxWidth(0.9f),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    LabeledInput("Departure airport", departure, onValueChange = onDepartureChange)
-                    LabeledInput("Destination airport", destination, onValueChange = onDestinationChange)
+                    AirportInput("Departure airport", departure, onValueChange = onDepartureChange)
+                    AirportInput("Destination airport", destination, onValueChange = onDestinationChange)
                     DateField("Departure date", departureDate, onValueChange = onDepartureDateChange)
                     DateField(
                         label = "Return date (optional)",
@@ -122,40 +112,6 @@ fun InputScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun LabeledInput(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    onValueChange: (String) -> Unit
-) {
-    val requester = remember { BringIntoViewRequester() }
-    val scope = rememberCoroutineScope()
-
-    Column(modifier = modifier.bringIntoViewRequester(requester)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onFocusEvent { focus ->
-                    if (focus.isFocused) {
-                        scope.launch {
-                            delay(350.milliseconds)
-                            requester.bringIntoView()
-                        }
-                    }
-                },
-            singleLine = true
-        )
     }
 }
 

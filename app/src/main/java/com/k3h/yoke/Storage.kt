@@ -3,6 +3,7 @@ package com.k3h.yoke
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
+import androidx.core.content.edit
 
 class Storage(context: Context) {
     private val prefs = context.applicationContext
@@ -35,18 +36,23 @@ class Storage(context: Context) {
                     .put("returnDate", it.returnDate)
             )
         }
-        prefs.edit().putString("saved_searches", array.toString()).apply()
+        prefs.edit { putString("saved_searches", array.toString()) }
     }
 
     var currency: String
         get() = prefs.getString("currency", "GBP") ?: "GBP"
-        set(value) = prefs.edit().putString("currency", value).apply()
+        set(value) = prefs.edit { putString("currency", value)}
 
-    var notificationsOn: Boolean
-        get() = prefs.getBoolean("notifications", true)
-        set(value) = prefs.edit().putBoolean("notifications", value).apply()
+    /** null until the user has picked a mode, so the first launch can follow the phone's setting. */
+    var savedDarkMode: Boolean?
+        get() = if (prefs.contains("dark_mode")) prefs.getBoolean("dark_mode", false) else null
+        set(value) {
+            prefs.edit {
+                if (value == null) remove("dark_mode") else putBoolean("dark_mode", value)
+            }
+        }
 
     var homeAirport: String
         get() = prefs.getString("home_airport", "") ?: ""
-        set(value) = prefs.edit().putString("home_airport", value).apply()
+        set(value) = prefs.edit { putString("home_airport", value)}
 }
