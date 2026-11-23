@@ -29,18 +29,23 @@ private val YokeLightColorScheme = lightColorScheme(
     onPrimary = YokeWhite,
     primaryContainer = YokeBlueTint,
     onPrimaryContainer = YokeInk,
+
     secondary = YokeBlueDeep,
     onSecondary = YokeWhite,
     secondaryContainer = YokeBlue,        // selected chips and the selected navbar item
     onSecondaryContainer = YokeWhite,
+
     tertiary = YokeBlueBright,
     onTertiary = YokeWhite,
+
     background = YokeWhite,
     onBackground = YokeInk,
+
     surface = YokeWhite,
     onSurface = YokeInk,
     surfaceVariant = YokeBlueMist,
     onSurfaceVariant = YokeInk,
+
     outline = YokeBlueDeep,
     outlineVariant = YokeBlueLine
 )
@@ -51,18 +56,23 @@ private val YokeDarkColorScheme = darkColorScheme(
     onPrimary = Color(0xFF001A3D),
     primaryContainer = Color(0xFF1E3A5F),
     onPrimaryContainer = Color(0xFFFFFFFF),
+
     secondary = Color(0xFF2F6FDB),
     onSecondary = Color(0xFFFFFFFF),
     secondaryContainer = Color(0xFF2F6FDB),
     onSecondaryContainer = Color(0xFFFFFFFF),
+
     tertiary = Color(0xFF0B6BAE),
     onTertiary = Color(0xFFFFFFFF),
+
     background = Color(0xFF0B0F14),
     onBackground = Color(0xFFFFFFFF),
+
     surface = Color(0xFF151B23),
     onSurface = Color(0xFFFFFFFF),
     surfaceVariant = Color(0xFF1B2430),
     onSurfaceVariant = Color(0xFFFFFFFF),
+
     outline = Color(0xFF7FAAE8),
     outlineVariant = Color(0xFF2C3A4D)
 )
@@ -74,15 +84,18 @@ private fun yokeTypography(logoColor: Color) = Typography(
         fontSize = 100.sp,
         color = logoColor
     ),
+
     headlineLarge = TextStyle(           // page titles
         fontFamily = FontFamily.Default,
         fontSize = 40.sp
     ),
+
     headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold
     ),
+
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 18.sp
@@ -92,6 +105,7 @@ private fun yokeTypography(logoColor: Color) = Typography(
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium
     ),
+
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 14.sp
@@ -100,6 +114,7 @@ private fun yokeTypography(logoColor: Color) = Typography(
         fontFamily = FontFamily.Default,
         fontSize = 12.sp
     ),
+
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontSize = 15.sp,

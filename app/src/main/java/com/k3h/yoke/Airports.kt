@@ -21,9 +21,11 @@ data class AirportMatch(val airport: Airport, val distanceKm: Float)
 fun nearestAirport(lat: Double, lon: Double): AirportMatch {
     val results = FloatArray(1)
     var best: AirportMatch? = null
+
     for (airport in AIRPORTS) {
         Location.distanceBetween(lat, lon, airport.lat, airport.lon, results)
         val km = results[0] / 1000f
+
         if (best == null || km < best.distanceKm) best = AirportMatch(airport, km)
     }
     return best!!
@@ -37,6 +39,7 @@ fun nearestAirport(lat: Double, lon: Double): AirportMatch {
 fun requestLocation(context: Context, onResult: (Location?) -> Unit) {
     val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     val providers = lm.getProviders(true).filter { it != LocationManager.PASSIVE_PROVIDER }
+
     if (providers.isEmpty()) {
         onResult(null)   // location is switched off on the device
         return
@@ -45,6 +48,7 @@ fun requestLocation(context: Context, onResult: (Location?) -> Unit) {
     val cached = providers
         .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
         .maxByOrNull { it.time }
+
     if (cached != null) {
         onResult(cached)
         return
@@ -56,6 +60,7 @@ fun requestLocation(context: Context, onResult: (Location?) -> Unit) {
                 onResult(it)
             }
         }.onFailure { onResult(null) }
+
     } else {
         onResult(null)
     }

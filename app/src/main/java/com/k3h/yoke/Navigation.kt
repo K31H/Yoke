@@ -46,6 +46,7 @@ fun BottomNavBar(current: NavTab, onSelect: (NavTab) -> Unit) {
                 .height(2.dp)
                 .background(MaterialTheme.colorScheme.primary)
         )
+
         NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
             NavTab.entries.forEach { tab ->
                 NavigationBarItem(
@@ -72,6 +73,7 @@ fun PageHeader(title: String) {
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
                 .background(MaterialTheme.colorScheme.scrim)
         )
+
         Text(
             text = title,
             style = MaterialTheme.typography.headlineLarge,

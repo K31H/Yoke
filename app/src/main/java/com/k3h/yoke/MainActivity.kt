@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             val context = LocalContext.current
             val storage = remember { Storage(context) }
             val systemDark = isSystemInDarkTheme()
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(
                     // the strip behind the clock is always dark, so keep its icons light
                     statusBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+
                     navigationBarStyle = if (darkMode) {
                         SystemBarStyle.dark(AndroidColor.TRANSPARENT)
                     } else {

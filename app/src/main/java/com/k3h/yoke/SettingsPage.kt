@@ -25,10 +25,13 @@ import kotlin.math.roundToInt
 fun SettingsPage(
     darkMode: Boolean,
     onDarkModeChange: (Boolean) -> Unit,
+
     currency: String,
     onCurrencyChange: (String) -> Unit,
+
     homeAirport: String,
     onHomeAirportChange: (String) -> Unit,
+
     onClearSaved: () -> Unit
 ) {
     val context = LocalContext.current
@@ -43,6 +46,7 @@ fun SettingsPage(
         match = null
         requestLocation(context) { location ->
             loading = false
+
             if (location == null) {
                 status = "Couldn't get your location. Make sure location is switched on and try again."
             } else {
@@ -65,6 +69,7 @@ fun SettingsPage(
         val granted = listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
+
         ).any { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
 
         if (granted) {
@@ -108,7 +113,9 @@ fun SettingsPage(
             // Currency
             Column {
                 Text("Currency", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("GBP", "USD", "EUR").forEach { code ->
                         FilterChip(
@@ -123,11 +130,13 @@ fun SettingsPage(
             // Nearest airport
             Column {
                 Text("Nearest airport", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+
                 Text(
                     text = if (homeAirport.isBlank()) "No home airport set"
                     else "Home airport: $homeAirport",
                     fontSize = 12.sp
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
 
                 OutlinedButton(
@@ -149,6 +158,7 @@ fun SettingsPage(
 
                 match?.let { m ->
                     Spacer(modifier = Modifier.height(12.dp))
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -161,6 +171,7 @@ fun SettingsPage(
                     ) {
                         Text(m.airport.label, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Text("${m.distanceKm.roundToInt()} km away", fontSize = 12.sp)
+
                         Spacer(modifier = Modifier.height(12.dp))
 
                         val alreadySet = homeAirport == m.airport.code

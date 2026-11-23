@@ -4,45 +4,21 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -183,20 +159,29 @@ fun SelectedPage(
                             }
                         }
 
-                        // Dropdown "V" button
+                        // Provider dropdown button
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                                .size(28.dp)
+                                .size(40.dp)
                                 .border(
                                     YokeStyle.borderWidth,
                                     MaterialTheme.colorScheme.outline,
                                     YokeStyle.smallShape
                                 )
-                                .clickable(enabled = bookingOptions.size > 1) { expanded = true },
+                                .clickable(
+                                    enabled = bookingOptions.size > 1,
+                                    onClickLabel = "Choose provider",
+                                    role = Role.Button
+                                ) { expanded = true }
+                                .semantics { contentDescription = "Choose provider" },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "V", fontSize = 12.sp)
+                            Text(
+                                text = "V",
+                                fontSize = 12.sp,
+                                modifier = Modifier.clearAndSetSemantics {}
+                            )
                             DropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false }
@@ -237,14 +222,13 @@ fun SelectedPage(
 private fun SectionTitle(text: String) {
     Text(
         text = text,
-        color = MaterialTheme.colorScheme.primary,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(bottom = 12.dp)
     )
 }
 
-/** One direction: a single leg for nonstop flights, or leg + connection + leg. */
 /** One direction: a single leg for nonstop flights, or leg + connection + leg. */
 @Composable
 private fun JourneySection(trip: FlightResult) {
@@ -331,7 +315,7 @@ private fun LegBlock(
                     text = airline,
                     fontSize = 12.sp,
                     maxLines = 2,
-                    modifier = Modifier.weight(1f, fill = false)   // long names wrap instead of pushing the duration off
+                    modifier = Modifier.weight(1f, fill = false)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = duration, fontSize = 12.sp)
@@ -340,6 +324,7 @@ private fun LegBlock(
         }
     }
 }
+
 @Composable
 private fun PlaceRow(name: String, time: String) {
     Row(
@@ -354,7 +339,7 @@ private fun PlaceRow(name: String, time: String) {
 
 @Composable
 private fun LegArrow() {
-    val arrowColor = MaterialTheme.colorScheme.primary
+    val arrowColor = MaterialTheme.colorScheme.primary   // read outside the Canvas
 
     Canvas(
         modifier = Modifier

@@ -30,14 +30,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun InputScreen(
     modifier: Modifier = Modifier,
+
     departure: String = "",
     onDepartureChange: (String) -> Unit = {},
+
     destination: String = "",
     onDestinationChange: (String) -> Unit = {},
+
     departureDate: String = "",
     onDepartureDateChange: (String) -> Unit = {},
+
     returnDate: String = "",
     onReturnDateChange: (String) -> Unit = {},
+
     onSearch: () -> Unit = {},
     onSaveSearch: () -> Unit = {}
 ) {
@@ -78,8 +83,11 @@ fun InputScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     AirportInput("Departure airport", departure, onValueChange = onDepartureChange)
+
                     AirportInput("Destination airport", destination, onValueChange = onDestinationChange)
+
                     DateField("Departure date", departureDate, onValueChange = onDepartureDateChange)
+
                     DateField(
                         label = "Return date (optional)",
                         value = returnDate,
@@ -112,13 +120,5 @@ fun InputScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun InputScreenPreview() {
-    MaterialTheme {
-        InputScreen(modifier = Modifier.fillMaxSize())
     }
 }

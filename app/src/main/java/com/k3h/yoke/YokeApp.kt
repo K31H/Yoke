@@ -1,39 +1,30 @@
 package com.k3h.yoke
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 /** The currency comes from the market the fares are sold in. */
-private fun marketFor(currency: String): String = when (currency) {
-    "USD" -> "US"
-    "EUR" -> "DE"
-    else -> "GB"
+private fun marketFor(currency: String): String {
+
+    return when (currency) {
+        "USD" -> "US"
+        "EUR" -> "DE"
+        else -> "GB"
+    }
 }
 
 @Composable
@@ -68,8 +59,10 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
     val savedSearches = remember {
         mutableStateListOf<SavedSearch>().apply { addAll(storage.loadSavedSearches()) }
     }
+
     LaunchedEffect(savedSearches) {
-        snapshotFlow { savedSearches.toList() }.collect { storage.saveSavedSearches(it) }
+        snapshotFlow { savedSearches.toList() }
+            .collect { storage.saveSavedSearches(it) }
     }
 
     fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -77,13 +70,17 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
     fun runSearch() {
         val depart = normaliseDate(departureDate)
         val ret = if (returnDate.isBlank()) null else normaliseDate(returnDate)
+
         when {
             departure.isBlank() || destination.isBlank() ->
                 toast("Enter departure and destination first")
+
             depart == null ->
                 toast("Choose a departure date")
+
             returnDate.isNotBlank() && ret == null ->
                 toast("Choose a valid return date")
+
             else -> {
                 showResults = true
                 searching = true
@@ -95,11 +92,17 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                             ?: throw ApiException(
                                 "Couldn't find an airport matching \"${departure.trim()}\". Try a city name or a 3-letter code."
                             )
+
                         val to = resolveAirportCode(destination)
                             ?: throw ApiException(
                                 "Couldn't find an airport matching \"${destination.trim()}\". Try a city name or a 3-letter code."
                             )
-                        flights = searchConnections(from, to, depart, ret, marketFor(currency))
+
+                        // Parse the response off the main thread so the UI doesn't stutter
+                        flights = withContext(Dispatchers.Default) {
+                            searchConnections(from, to, depart, ret, marketFor(currency))
+                        }
+
                     } catch (e: Exception) {
                         searchError = e.message ?: "Something went wrong. Please try again."
                     } finally {
@@ -114,6 +117,7 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
         selectedFlight = flight
         bookingOptions = emptyList()
         bookingLoading = true
+
         scope.launch {
             bookingOptions = runCatching { fetchBookingOptions(flight.ignavId) }
                 .getOrDefault(emptyList())
@@ -136,6 +140,7 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
             when (currentTab) {
                 NavTab.Search -> {
                     val flight = selectedFlight
+
                     when {
                         flight != null -> SelectedPage(
                             flight = flight,
@@ -143,12 +148,19 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                             bookingLoading = bookingLoading,
                             onBack = { selectedFlight = null },
                             onBook = { option ->
-                                runCatching {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW,
-                                        option.url.toUri()))
-                                }.onFailure { toast("Couldn't open the booking page") }
+
+                                if (!option.url.startsWith("https://")) {
+                                    toast("Blocked an unsafe link")
+
+                                } else {
+                                    runCatching {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW,
+                                            option.url.toUri()))
+                                    }.onFailure { toast("Couldn't open the booking page") }
+                                }
                             }
                         )
+
                         showResults -> ResultsPage(
                             flights = flights,
                             loading = searching,
@@ -156,6 +168,7 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                             onBack = { showResults = false },
                             onSelectFlight = { selectFlight(it) }
                         )
+
                         else -> InputScreen(
                             modifier = Modifier.fillMaxSize(),
                             departure = departure,
@@ -164,13 +177,20 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                             onDestinationChange = { destination = it },
                             departureDate = departureDate,
                             onDepartureDateChange = { newDate ->
+
                                 departureDate = newDate
-                                if (returnDate.isNotBlank() && (normaliseDate(returnDate) ?: "") < newDate) returnDate = ""
+
+                                // clear the return date if it is now before the departure date
+                                if (returnDate.isNotBlank() && (normaliseDate(returnDate) ?: "") < newDate) {
+                                    returnDate = ""
+                                }
+
                             },
                             returnDate = returnDate,
                             onReturnDateChange = { returnDate = it },
                             onSearch = { runSearch() },
                             onSaveSearch = {
+
                                 val search = SavedSearch(
                                     departure.trim(), destination.trim(),
                                     departureDate.trim(), returnDate.trim()
@@ -179,7 +199,9 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                                     when {
                                         search.departure.isBlank() || search.destination.isBlank() ->
                                             "Enter departure and destination first"
+
                                         search in savedSearches -> "Already saved"
+
                                         else -> {
                                             savedSearches.add(0, search)
                                             "Search saved"
@@ -193,6 +215,7 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
 
                 NavTab.Saved -> SavedSearchesPage(
                     searches = savedSearches,
+
                     onOpen = { search ->
                         departure = search.departure
                         destination = search.destination
@@ -200,6 +223,7 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                         returnDate = search.returnDate
                         selectedFlight = null
                         currentTab = NavTab.Search
+
                         runSearch()
                     },
                     onDelete = { savedSearches.remove(it) }
@@ -210,15 +234,18 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
                     onDarkModeChange = onDarkModeChange,
                     currency = currency,
                     onCurrencyChange = { newCurrency ->
+
                         if (newCurrency != currency) {
                             currency = newCurrency
                             storage.currency = newCurrency
+
                             // results shown so far are priced in the old currency
                             showResults = false
                             selectedFlight = null
                         }
                     },
                     homeAirport = homeAirport,
+
                     onHomeAirportChange = { code ->
                         homeAirport = code
                         storage.homeAirport = code
@@ -233,9 +260,11 @@ fun YokeApp(darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
         Box(
             modifier = Modifier
                 .clipToBounds()
+
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
                     val visibleHeight = (placeable.height - ime.getBottom(this)).coerceAtLeast(0)
+
                     layout(placeable.width, visibleHeight) {
                         placeable.placeRelative(0, 0)
                     }

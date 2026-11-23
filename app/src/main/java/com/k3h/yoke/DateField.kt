@@ -66,7 +66,9 @@ fun DateField(
 
     Column(modifier = modifier) {
         Text(text = label, style = MaterialTheme.typography.labelLarge)
+
         Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = if (iso != null) prettyDate(iso, weekday = true) else value,
             onValueChange = {},

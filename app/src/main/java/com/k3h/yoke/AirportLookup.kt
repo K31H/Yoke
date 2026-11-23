@@ -46,24 +46,29 @@ private val searchCache = mutableMapOf<String, List<AirportSuggestion>>()
 /** Asks Ignav's airport search (worldwide). Results are cached per query. */
 suspend fun fetchAirportSuggestions(query: String): List<AirportSuggestion> {
     val key = query.trim().lowercase()
+
     if (key.length < 2) return emptyList()
     searchCache[key]?.let { return it }
 
     val result: List<AirportSuggestion> = withContext(Dispatchers.IO) {
         val url = "https://ignav.com/api/airports?q=${URLEncoder.encode(query.trim(), "UTF-8")}&limit=5"
         val conn = URL(url).openConnection() as HttpURLConnection
+
         try {
             conn.connectTimeout = 15_000
             conn.readTimeout = 30_000
             conn.setRequestProperty("X-Api-Key", BuildConfig.IGNAV_API_KEY)
+
             if (conn.responseCode !in 200..299) return@withContext null
             val array = JSONArray(conn.inputStream.bufferedReader().use { it.readText() })
             (0 until array.length()).mapNotNull { i ->
                 val o = array.getJSONObject(i)
                 val code = o.optString("code")
+
                 if (code.isBlank()) return@mapNotNull null
                 val name = o.optString("name")
                 val city = o.optString("city").ifBlank { name }
+
                 AirportSuggestion(
                     code = code,
                     label = "$city ($code)",

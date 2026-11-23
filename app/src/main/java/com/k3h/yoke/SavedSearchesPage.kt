@@ -88,6 +88,7 @@ private fun SavedSearchCard(
             .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
             .clickable(onClick = onOpen)
             .padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
+
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -96,7 +97,9 @@ private fun SavedSearchCard(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
+
             Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = if (search.returnDate.isBlank()) prettyDate(search.departureDate)
                 else "${prettyDate(search.departureDate)} – ${prettyDate(search.returnDate)}",

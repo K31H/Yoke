@@ -99,6 +99,7 @@ fun AirportInput(
             .bringIntoViewRequester(requester)
     ) {
         Text(text = label, style = MaterialTheme.typography.labelLarge)
+
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(

@@ -1,5 +1,6 @@
 package com.k3h.yoke
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -9,18 +10,15 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
-import android.util.Log
 
 private const val BASE_URL = "https://ignav.com/api"
-
 class ApiException(message: String) : Exception(message)
-
 data class BookingOption(val provider: String, val price: String, val url: String)
 
 // ---------- Networking ----------
-
 private suspend fun post(path: String, body: JSONObject): JSONObject = withContext(Dispatchers.IO) {
     val conn = URL("$BASE_URL$path").openConnection() as HttpURLConnection
+
     try {
         conn.requestMethod = "POST"
         conn.connectTimeout = 15_000
@@ -38,9 +36,11 @@ private suspend fun post(path: String, body: JSONObject): JSONObject = withConte
             in 200..299 -> JSONObject(text)
             401, 403 -> throw ApiException("The API key was rejected. Check IGNAV_API_KEY.")
             404 -> throw ApiException("Nothing found.")
-            else -> throw ApiException("Search failed (HTTP $code). ${text.take(120)}")
+            else -> throw ApiException(
+                "Search failed (HTTP $code)." + if (BuildConfig.DEBUG) " ${text.take(120)}" else ""
+            )
         }
-    } catch (_: java.io.IOException) {
+    } catch (e: java.io.IOException) {
         throw ApiException("Couldn't reach the server. Check your internet connection.")
     } finally {
         conn.disconnect()
@@ -48,30 +48,35 @@ private suspend fun post(path: String, body: JSONObject): JSONObject = withConte
 }
 
 // ---------- Public calls ----------
-
-/** Connecting flights (exactly one stop). Pass returnDate for a round trip (price = whole trip). */
+/** Nonstop and one-connection flights. Pass returnDate for a round trip (price = whole trip). */
 suspend fun searchConnections(
     origin: String,
     destination: String,
     departDate: String,          // YYYY-MM-DD
     returnDate: String?,         // YYYY-MM-DD or null
-    market: String               // 2-letter country code; decides the currency
+    market: String // 2-letter country code; decides the currency
 ): List<FlightResult> {
     val roundTrip = returnDate != null
+
     val body = JSONObject()
         .put("origin", origin)
         .put("destination", destination)
         .put("departure_date", departDate)
         .put("max_stops", 1)
         .put("market", market)
+
     if (roundTrip) body.put("return_date", returnDate)
 
     val json = post(if (roundTrip) "/fares/round-trip" else "/fares/one-way", body)
     val itineraries = json.optJSONArray("itineraries") ?: JSONArray()
-    Log.d("Yoke", "Search $origin -> $destination on $departDate (market $market): ${itineraries.length()} itineraries")
+
+    if (BuildConfig.DEBUG) {
+        Log.d("Yoke", "Search $origin -> $destination on $departDate (market $market): ${itineraries.length()} itineraries")
+    }
 
     // Same outbound flights can come back at different prices: keep only the cheapest.
     val cheapest = LinkedHashMap<String, Pair<Double, FlightResult>>()
+
     for (i in 0 until itineraries.length()) {
         val itin = itineraries.getJSONObject(i)
         val outboundLeg = itin.optJSONObject("outbound") ?: continue
@@ -80,12 +85,14 @@ suspend fun searchConnections(
 
         val key = legKey(outboundLeg)
         val existing = cheapest[key]
+
         if (existing != null && existing.first <= amount) continue
 
         val priceText = formatPrice(priceObj) + if (roundTrip) " return" else ""
         val outbound = buildLeg(outboundLeg, priceText, itin.optString("ignav_id")) ?: continue
 
         val inboundLeg = itin.optJSONObject("inbound")
+
         val inbound = if (roundTrip && inboundLeg != null) {
             buildLeg(inboundLeg, "", "") ?: continue
         } else null
@@ -104,47 +111,6 @@ suspend fun searchConnections(
     return cheapest.values.sortedBy { it.first }.map { it.second }
 }
 
-/** One direction of travel (nonstop or one connection). Returns null for anything longer. */
-private fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightResult? {
-    val segments = leg.optJSONArray("segments") ?: return null
-    if (segments.length() !in 1..2) return null
-
-    val s1 = segments.getJSONObject(0)
-    val s2 = if (segments.length() == 2) segments.getJSONObject(1) else null
-    val last = s2 ?: s1
-
-    return FlightResult(
-        fromCode = s1.getString("departure_airport"),
-        fromTime = timeOf(s1.getString("departure_time_local")),
-        fromDate = dateOf(s1.getString("departure_time_local")),
-        leg1Duration = formatMinutes(s1.getInt("duration_minutes")),
-        layoverCode = if (s2 != null) s1.getString("arrival_airport") else "",
-        layoverDuration = if (s2 != null)
-            formatMinutes(minutesBetween(s1.getString("arrival_time_local"), s2.getString("departure_time_local")))
-        else "",
-        leg2Duration = if (s2 != null) formatMinutes(s2.getInt("duration_minutes")) else "",
-        toCode = last.getString("arrival_airport"),
-        toTime = timeOf(last.getString("arrival_time_local")),
-        toDate = dateOf(last.getString("arrival_time_local")),
-        airline = leg.optString("carrier").ifBlank { s1.optString("operating_carrier_name", "") },
-        airlineCode = s1.optString("marketing_carrier_code"),
-        price = price,
-        layoverArrivalTime = if (s2 != null) timeOf(s1.getString("arrival_time_local")) else "",
-        layoverDepartureTime = if (s2 != null) timeOf(s2.getString("departure_time_local")) else "",
-        provider = "",
-        ignavId = ignavId
-    )
-}
-
-/** Identifies a leg by its flight numbers and departure times, for spotting duplicates. */
-private fun legKey(leg: JSONObject): String {
-    val segments = leg.optJSONArray("segments") ?: return ""
-    return (0 until segments.length()).joinToString("|") { n ->
-        val s = segments.getJSONObject(n)
-        "${s.optString("marketing_carrier_code")}${s.optString("flight_number")}@${s.optString("departure_time_local")}"
-    }
-}
-
 /** Where to buy a specific itinerary (airlines and online travel agents). */
 suspend fun fetchBookingOptions(ignavId: String): List<BookingOption> {
     val json = post("/fares/booking-links", JSONObject().put("ignav_id", ignavId))
@@ -156,10 +122,12 @@ suspend fun fetchBookingOptions(ignavId: String): List<BookingOption> {
     } ?: 0
 
     val result = mutableListOf<BookingOption>()
+
     for (i in 0 until options.length()) {
         val option = options.getJSONObject(i)
         if ((option.optJSONArray("legs")?.length() ?: 0) != maxLegs) continue
         val links = option.optJSONArray("links") ?: continue
+
         for (j in 0 until links.length()) {
             val link = links.getJSONObject(j)
             var url = link.optString("url")
@@ -173,6 +141,55 @@ suspend fun fetchBookingOptions(ignavId: String): List<BookingOption> {
         }
     }
     return result
+}
+
+// ---------- Building results ----------
+
+/** One direction of travel (nonstop or one connection). Returns null for anything longer. */
+private fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightResult? {
+    val segments = leg.optJSONArray("segments") ?: return null
+    if (segments.length() !in 1..2) return null
+
+    val s1 = segments.getJSONObject(0)
+    val s2 = if (segments.length() == 2) segments.getJSONObject(1) else null
+    val last = s2 ?: s1
+
+    return FlightResult(
+        fromCode = s1.getString("departure_airport"),
+        fromTime = timeOf(s1.getString("departure_time_local")),
+        fromDate = dateOf(s1.getString("departure_time_local")),
+
+        leg1Duration = formatMinutes(s1.getInt("duration_minutes")),
+        layoverCode = if (s2 != null) s1.getString("arrival_airport") else "",
+        layoverDuration = if (s2 != null)
+            formatMinutes(minutesBetween(s1.getString("arrival_time_local"), s2.getString("departure_time_local")))
+        else "",
+        leg2Duration = if (s2 != null) formatMinutes(s2.getInt("duration_minutes")) else "",
+
+        toCode = last.getString("arrival_airport"),
+        toTime = timeOf(last.getString("arrival_time_local")),
+        toDate = dateOf(last.getString("arrival_time_local")),
+
+        airline = leg.optString("carrier").ifBlank { s1.optString("operating_carrier_name", "") },
+
+        airlineCode = s1.optString("marketing_carrier_code"),
+        price = price,
+
+        layoverArrivalTime = if (s2 != null) timeOf(s1.getString("arrival_time_local")) else "",
+        layoverDepartureTime = if (s2 != null) timeOf(s2.getString("departure_time_local")) else "",
+
+        provider = "",
+        ignavId = ignavId
+    )
+}
+
+/** Identifies a leg by its flight numbers and departure times, for spotting duplicates. */
+private fun legKey(leg: JSONObject): String {
+    val segments = leg.optJSONArray("segments") ?: return ""
+    return (0 until segments.length()).joinToString("|") { n ->
+        val s = segments.getJSONObject(n)
+        "${s.optString("marketing_carrier_code")}${s.optString("flight_number")}@${s.optString("departure_time_local")}"
+    }
 }
 
 // ---------- Helpers ----------

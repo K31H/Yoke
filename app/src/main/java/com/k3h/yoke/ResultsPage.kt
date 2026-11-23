@@ -2,35 +2,17 @@ package com.k3h.yoke
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,20 +23,27 @@ data class FlightResult(
     val fromCode: String,
     val fromTime: String,
     val fromDate: String,
+
     val leg1Duration: String,
     val layoverCode: String,
     val layoverDuration: String,
     val leg2Duration: String,
+
     val toCode: String,
     val toTime: String,
     val toDate: String,
+
     val airline: String,
     val airlineCode: String = "",
+
     val price: String,
+
     val layoverArrivalTime: String = "",
     val layoverDepartureTime: String = "",
+
     val provider: String = "",
     val ignavId: String = "",
+
     val inbound: FlightResult? = null      // the return flight on a round trip
 ) {
     val isNonstop: Boolean get() = layoverCode.isBlank()
@@ -81,6 +70,7 @@ fun ResultsPage(
                 .height(WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
                 .background(MaterialTheme.colorScheme.scrim)
         )
+
         Spacer(modifier = Modifier.height(20.dp))
 
         // Header
@@ -123,7 +113,9 @@ fun ResultsPage(
                     verticalArrangement = Arrangement.Center
                 ) {
                     CircularProgressIndicator()
+
                     Spacer(modifier = Modifier.height(16.dp))
+
                     Text("Searching flights…")
                 }
 
@@ -134,7 +126,7 @@ fun ResultsPage(
                 )
 
                 flights.isEmpty() -> Text(
-                    text = "No connecting flights found for those dates.",
+                    text = "No flights found for those dates.",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(32.dp)
                 )
@@ -157,9 +149,21 @@ fun ResultsPage(
 
 @Composable
 fun FlightCard(flight: FlightResult, onSelect: () -> Unit) {
+    // One spoken sentence per card for TalkBack, instead of separate fragments
+    val description = buildString {
+        append("${flight.airline}, ${flight.price}. ")
+        append("Departs ${airportLabel(flight.fromCode)} at ${flight.fromTime} on ${flight.fromDate}. ")
+        append(
+            if (flight.isNonstop) "Nonstop, ${flight.leg1Duration}. "
+            else "One stop in ${airportLabel(flight.layoverCode)}, ${flight.layoverDuration} layover. "
+        )
+        append("Arrives ${airportLabel(flight.toCode)} at ${flight.toTime}.")
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .semantics(mergeDescendants = true) { contentDescription = description }
             .background(MaterialTheme.colorScheme.surface, YokeStyle.cardShape)
             .border(
                 YokeStyle.borderWidth,
@@ -186,8 +190,10 @@ private fun ConnectionPath(flight: FlightResult) {
     ) {
         AirportColumn(code = flight.fromCode, time = flight.fromTime, date = flight.fromDate)
         FlightLeg(duration = flight.leg1Duration, modifier = Modifier.weight(1f))
+
         AirportColumn(code = flight.layoverCode, time = flight.layoverDuration, date = null)
         FlightLeg(duration = flight.leg2Duration, modifier = Modifier.weight(1f))
+
         AirportColumn(code = flight.toCode, time = flight.toTime, date = flight.toDate)
     }
 }
@@ -201,6 +207,7 @@ private fun NonstopPath(flight: FlightResult) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AirportColumn(code = flight.fromCode, time = flight.fromTime, date = flight.fromDate)
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -209,7 +216,9 @@ private fun NonstopPath(flight: FlightResult) {
         ) {
             Text(text = flight.leg1Duration, fontSize = 10.sp, textAlign = TextAlign.Center)
             Text(text = "➔", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+
             Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "NONSTOP",
                 fontSize = 10.sp,
@@ -234,7 +243,9 @@ private fun FlightFooter(flight: FlightResult, onSelect: () -> Unit) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AirlineLogo(code = flight.airlineCode, name = flight.airline)
+
             Spacer(modifier = Modifier.width(8.dp))
+
             Text(text = flight.airline, fontSize = 14.sp)
         }
 
@@ -255,6 +266,7 @@ private fun FlightFooter(flight: FlightResult, onSelect: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun AirportColumn(code: String, time: String, date: String?) {
     Column(
