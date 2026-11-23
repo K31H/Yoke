@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -38,10 +37,7 @@ private val chosenPattern = Regex("\\([A-Z]{3}\\)\\s*$")
 /** Always places the popup directly below the field. */
 private class BelowFieldPositionProvider(private val gapPx: Int) : PopupPositionProvider {
     override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        anchorBounds: IntRect
     ): IntOffset = IntOffset(anchorBounds.left, anchorBounds.bottom + gapPx)
 }
 
