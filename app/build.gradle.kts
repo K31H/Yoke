@@ -11,10 +11,12 @@ plugins {
 
 android {
     namespace = "com.k3h.yoke"
-    compileSdk {
-        version = release(37)
-    }
 
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 2
+        }
+    }
     defaultConfig {
         applicationId = "com.k3h.yoke"
         minSdk = 24
@@ -22,7 +24,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
