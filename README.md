@@ -2,7 +2,7 @@
 
 An Android app for finding connecting flights. Search by city name, pick your dates on a calendar, compare nonstop and one-stop options, and open the booking page of the provider you choose.
 
-Built for **CS31002** at **Dundee University**.
+Built for **CS32005** at **Dundee University**.
 
 ## Features
 
