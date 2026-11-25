@@ -6,6 +6,11 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 data class Airport(
     val code: String,
@@ -18,17 +23,42 @@ data class Airport(
 
 data class AirportMatch(val airport: Airport, val distanceKm: Float)
 
+
+
+/** Straight-line distance between two points on the Earth in km (haversine formula). */
+fun distanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+
+    val earthRadiusKm = 6371.0
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
+
+    val a = sin(dLat / 2).pow(2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+
+    return 2 * earthRadiusKm * asin(sqrt(a.coerceIn(0.0, 1.0)))
+
+}
+
 fun nearestAirport(lat: Double, lon: Double): AirportMatch {
-    val results = FloatArray(1)
-    var best: AirportMatch? = null
+
+    var best = AIRPORTS[0]
+    var bestKm = distanceKm(lat, lon, best.lat, best.lon)
 
     for (airport in AIRPORTS) {
-        Location.distanceBetween(lat, lon, airport.lat, airport.lon, results)
-        val km = results[0] / 1000f
 
-        if (best == null || km < best.distanceKm) best = AirportMatch(airport, km)
+        val km = distanceKm(lat, lon, airport.lat, airport.lon)
+
+        if (km < bestKm) {
+
+            best = airport
+            bestKm = km
+
+        }
+
     }
-    return best!!
+
+    return AirportMatch(best, bestKm.toFloat())
+
 }
 
 /**

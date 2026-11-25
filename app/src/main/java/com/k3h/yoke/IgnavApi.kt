@@ -146,7 +146,7 @@ suspend fun fetchBookingOptions(ignavId: String): List<BookingOption> {
 // ---------- Building results ----------
 
 /** One direction of travel (nonstop or one connection). Returns null for anything longer. */
-private fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightResult? {
+internal fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightResult? {
     val segments = leg.optJSONArray("segments") ?: return null
     if (segments.length() !in 1..2) return null
 
@@ -184,7 +184,7 @@ private fun buildLeg(leg: JSONObject, price: String, ignavId: String): FlightRes
 }
 
 /** Identifies a leg by its flight numbers and departure times, for spotting duplicates. */
-private fun legKey(leg: JSONObject): String {
+internal fun legKey(leg: JSONObject): String {
     val segments = leg.optJSONArray("segments") ?: return ""
     return (0 until segments.length()).joinToString("|") { n ->
         val s = segments.getJSONObject(n)
@@ -213,7 +213,7 @@ private fun timeOf(local: String) = local.substring(11, 16)                     
 private fun dateOf(local: String) =
     "${local.substring(8, 10)}/${local.substring(5, 7)}/${local.substring(2, 4)}"  // "dd/MM/yy"
 
-private fun formatMinutes(total: Int): String {
+internal fun formatMinutes(total: Int): String {
     val h = total / 60
     val m = total % 60
     return when {
@@ -223,7 +223,7 @@ private fun formatMinutes(total: Int): String {
     }
 }
 
-private fun formatPrice(price: JSONObject): String {
+internal fun formatPrice(price: JSONObject): String {
     val amount = price.optDouble("amount", 0.0)
     if (amount == 0.0) return ""
     val symbol = when (val c = price.optString("currency")) {
